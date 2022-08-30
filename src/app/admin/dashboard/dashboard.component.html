@@ -1,0 +1,69 @@
+<div class="container">
+  <div class=" col-5 card mt-5 container shadow">
+
+    <h3 class="lead text-center mt-2">Creer une annonce</h3>
+
+    <hr>
+    <form class="mt-5" [formGroup]="offerForm" (ngSubmit)="onSubmitForm()">
+      <input type="number" formControlName="index" hidden>
+      <div class="row mb-3">
+        <label  class="col-sm-2 col-form-label" >Titre</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" formControlName="titre" >
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label  class="col-sm-2 col-form-label">Marque</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" formControlName="marque">
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <label  class="col-sm-2 col-form-label">Modèle</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" formControlName="modele" appUppercaseInput>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <label  class="col-sm-2 col-form-label">Prix</label>
+        <div class="col-sm-10">
+          <input type="number" class="form-control" formControlName="prix" >
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-success mb-5 mt-4" [disabled]="offerForm.invalid">Enrégistrer</button>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="row col-5 card mt-5 container shadow">
+    <h3 class="lead text-center">Annonces enrégistrées</h3>
+    <table class="table">
+      <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Titre</th>
+        <th scope="col">Voiture</th>
+        <th scope="col">Prix</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let car of cars; let i = index">
+        <th scope="row">{{i}}</th>
+        <td>{{car.titre | firstChartUppercase }}</td>
+        <td>{{car.modele}}</td>
+        <td>{{car.prix | currency:'EUR':'symbol':'4.2-2':'fr'}} </td>
+        <td><button class="btn btn-info btn-sm" (click)="onEditOffers(car, i)">Modifier</button>
+          <button class="btn btn-danger ms-1 btn-sm" (click)="onDeleteOffers(i)"> Supprimer</button>
+        </td>
+      </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
