@@ -1,29 +1,45 @@
 import { Injectable } from '@angular/core';
 import {Car} from "../interfaces/car";
+import {AngularFireDatabase} from "@angular/fire/compat/database";
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CarsService {
 
-  private cars:Car[] = [
-    {
-      titre: 'toyota 44',
-      marque: 'toyota',
-      modele: '108 DASH',
-      prix: 3000
-    }
-  ]
+  private cars:Car[] = []
 
-  constructor() { }
+  carsSubject: BehaviorSubject<Car[]> = new BehaviorSubject(<Car[]>[]);
 
-  getCars () : Car[] {
-      return this.cars
+  constructor(private db: AngularFireDatabase) {
+    this.getCars()
   }
 
-  addCar (car:Car): Car[] {
-    this.cars.push(car)
-    return this.cars
+  dispatchCars() {
+    this.carsSubject.next(this.cars);
+  }
+
+  getCars () : void {
+      this.db.list('cars').query.limitToLast(10).once('value', snapshot => {
+        const carsSnapshotValue = snapshot.val()
+        console.log(carsSnapshotValue)
+        const cars = Object.keys(carsSnapshotValue).map(id => ({id, ...carsSnapshotValue[id]}))
+        this.cars = cars
+        this.dispatchCars()
+      })
+  }
+
+  addCar (car:Car): Promise<Car> {
+    return new Promise((resolve, reject) => {
+      this.db.list('cars').push(car)
+        .then(res => {
+          this.cars.push({...car, id: <string>res.key})
+          resolve({...car, id: <string>res.key});
+          this.dispatchCars()
+        })
+        .catch(reject)
+    })
   }
 
   editCar (car:Car, index:number): Car[] {

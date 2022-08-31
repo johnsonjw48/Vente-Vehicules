@@ -8,6 +8,13 @@ import { HomeComponent } from './home/home.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {registerLocaleData} from "@angular/common";
 import localeFr from  "@angular/common/locales/fr";
+import {AngularFireModule} from "@angular/fire/compat";
+import {environment} from "../environments/environment";
+import {AngularFireAuthModule} from "@angular/fire/compat/auth";
+import {AngularFireDatabaseModule} from "@angular/fire/compat/database";
+import {AngularFirestoreModule} from "@angular/fire/compat/firestore";
+
+
 
 
 
@@ -24,7 +31,11 @@ registerLocaleData(localeFr)
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireAuthModule,
+    AngularFireDatabaseModule,
+    AngularFirestoreModule
   ],
   providers: [
     {provide:LOCALE_ID, useValue:'fr-FR'}
