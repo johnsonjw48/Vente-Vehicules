@@ -5,7 +5,7 @@
 
     <hr>
     <form class="mt-5" [formGroup]="offerForm" (ngSubmit)="onSubmitForm()">
-      <input type="number" formControlName="index" hidden>
+      <input type="text" formControlName="id" hidden>
       <div class="row mb-3">
         <label  class="col-sm-2 col-form-label" >Titre</label>
         <div class="col-sm-10">
@@ -58,8 +58,8 @@
         <td>{{car.titre | firstChartUppercase }}</td>
         <td>{{car.modele}}</td>
         <td>{{car.prix | currency:'EUR':'symbol':'4.2-2':'fr'}} </td>
-        <td><button class="btn btn-info btn-sm" (click)="onEditOffers(car, i)">Modifier</button>
-          <button class="btn btn-danger ms-1 btn-sm" (click)="onDeleteOffers(i)"> Supprimer</button>
+        <td><button class="btn btn-info btn-sm" (click)="onEditOffers(car)">Modifier</button>
+          <button class="btn btn-danger ms-1 btn-sm" (click)="onDeleteOffers(car.id)"> Supprimer</button>
         </td>
       </tr>
 

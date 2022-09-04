@@ -37,7 +37,7 @@ export class DashboardComponent implements OnInit {
 
   initOfferForm() {
     this.offerForm = this.fb.group({
-      index:[null],
+      id:[null],
       titre: ['', [Validators.required, Validators.minLength(5)]],
       marque: ['', Validators.required],
       modele: ['', Validators.required],
@@ -47,24 +47,28 @@ export class DashboardComponent implements OnInit {
   }
 
   onSubmitForm ():void {
-    const i = this.offerForm.value.index
-    if (i === null){
+    const i = this.offerForm.value.id
+    if (i === null || i === undefined){
       delete this.offerForm.value.index
       this.carsService.addCar(this.offerForm.value)
         .catch(console.error)
     }else {
       delete this.offerForm.value.index
-      this.cars = this.carsService.editCar(this.offerForm.value, i)
+       this.carsService.editCar(this.offerForm.value, i).catch(console.error)
     }
 
     this.offerForm.reset()
   }
 
-  onEditOffers(offer:Car, index:number):void {
-    this.offerForm.setValue({...offer,  index})
+  onEditOffers(offer:Car):void {
+    this.offerForm.setValue(offer)
   }
 
-  onDeleteOffers (index:number) {
-    this.cars = this.carsService.deleteCar(index)
+  onDeleteOffers (index?:string) {
+     if (index){
+       this.carsService.deleteCar(index).catch(console.error)
+     }else {
+       console.error('Il faut un id')
+     }
   }
 }

@@ -13,7 +13,7 @@ export class CarsService {
   carsSubject: BehaviorSubject<Car[]> = new BehaviorSubject(<Car[]>[]);
 
   constructor(private db: AngularFireDatabase) {
-    this.getCars()
+
   }
 
   dispatchCars() {
@@ -23,9 +23,10 @@ export class CarsService {
   getCars () : void {
       this.db.list('cars').query.limitToLast(10).once('value', snapshot => {
         const carsSnapshotValue = snapshot.val()
-        console.log(carsSnapshotValue)
-        const cars = Object.keys(carsSnapshotValue).map(id => ({id, ...carsSnapshotValue[id]}))
-        this.cars = cars
+       if (carsSnapshotValue){
+         const cars = Object.keys(carsSnapshotValue).map(id => ({id, ...carsSnapshotValue[id]}))
+         this.cars = cars
+       }
         this.dispatchCars()
       })
   }
@@ -42,13 +43,26 @@ export class CarsService {
     })
   }
 
-  editCar (car:Car, index:number): Car[] {
-    this.cars[index] = car
-    return  this.cars
+  editCar (car:Car, index:string): Promise<Car>{
+    return  new Promise((resolve, reject)=>{
+      this.db.list('cars').update(index, car)
+        .then(res=>{
+          const editId= this.cars.findIndex(el=> el.id === index)
+          this.cars[editId] = {...car, id: index}
+          this.dispatchCars()
+          resolve({...car, id:index})
+        }).catch(reject)
+    })
   }
 
-  deleteCar (index:number): Car[] {
-    this.cars.splice(index, 1)
-    return this.cars
+  deleteCar ( index:string): Promise<Car> {
+    return new Promise((resolve, reject)=>{
+      this.db.list('cars').remove(index)
+        .then(res => {
+          const deleteId = this.cars.findIndex(el=> el.id === index)
+          this.cars.splice(deleteId, 1)
+          this.dispatchCars()
+        }).catch(console.error)
+    })
   }
 }
