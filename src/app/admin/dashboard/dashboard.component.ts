@@ -16,6 +16,8 @@ export class DashboardComponent implements OnInit {
   cars:Car[] = []
 
   subscription!:Subscription
+  currentPhotoFile: any
+  currentPhotoUrl!:string
 
   constructor(private fb: FormBuilder,
               private carsService: CarsService) { }
@@ -41,16 +43,26 @@ export class DashboardComponent implements OnInit {
       titre: ['', [Validators.required, Validators.minLength(5)]],
       marque: ['', Validators.required],
       modele: ['', Validators.required],
+      photo: [],
       prix: [0, Validators.required]
 
     })
+  }
+
+  handleChangePhoto ($event:any): void {
+    this.currentPhotoFile = $event.target.files[0]
+    const fileReader =  new FileReader()
+    fileReader.readAsDataURL(this.currentPhotoFile)
+    fileReader.onloadend = (e) =>{
+      this.currentPhotoUrl = <string>e.target?.result
+    }
   }
 
   onSubmitForm ():void {
     const i = this.offerForm.value.id
     if (i === null || i === undefined){
       delete this.offerForm.value.index
-      this.carsService.addCar(this.offerForm.value)
+      this.carsService.addCar(this.offerForm.value, this.currentPhotoFile)
         .catch(console.error)
     }else {
       delete this.offerForm.value.index
@@ -58,6 +70,8 @@ export class DashboardComponent implements OnInit {
     }
 
     this.offerForm.reset()
+    this.currentPhotoFile = null
+
   }
 
   onEditOffers(offer:Car):void {
