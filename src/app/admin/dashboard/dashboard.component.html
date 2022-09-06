@@ -33,7 +33,7 @@
         </div>
       </div>
 
-      <div class="px-3 mt-4 mb-4" *ngIf="currentPhotoFile">
+      <div class="px-3 mt-4 mb-4" *ngIf=" currentPhotoUrl && currentPhotoUrl !== '' ">
         <img [src]="currentPhotoUrl" class="rounded w-100" alt="...">
       </div>
 

@@ -35,6 +35,8 @@ export class DashboardComponent implements OnInit {
       }
     })
     this.carsService.getCars()
+
+
   }
 
   initOfferForm() {
@@ -60,22 +62,36 @@ export class DashboardComponent implements OnInit {
 
   onSubmitForm ():void {
     const i = this.offerForm.value.id
+    let offer = this.offerForm.value
+    const offerPhotoUrl = this.cars.find(el => el.id  === i)?.photo
+    offer = {...offer, photo: offerPhotoUrl}
     if (i === null || i === undefined){
-      delete this.offerForm.value.index
-      this.carsService.addCar(this.offerForm.value, this.currentPhotoFile)
+      delete this.offerForm.value.id
+      this.carsService.addCar(offer, this.currentPhotoFile)
         .catch(console.error)
     }else {
-      delete this.offerForm.value.index
-       this.carsService.editCar(this.offerForm.value, i).catch(console.error)
+      delete this.offerForm.value.id
+       this.carsService.editCar(offer, i, this.currentPhotoFile)
+         .catch(console.error)
     }
 
     this.offerForm.reset()
     this.currentPhotoFile = null
+    this.currentPhotoUrl = ''
 
   }
 
   onEditOffers(offer:Car):void {
-    this.offerForm.setValue(offer)
+    this.currentPhotoUrl = offer.photo ? offer.photo : '';
+    this.offerForm.setValue({
+      id: offer.id ? offer.id : '',
+      titre: offer.titre ? offer.titre : '',
+      marque: offer.marque ? offer.marque : '',
+      modele: offer.modele ? offer.modele : '',
+      photo: '',
+      prix: offer.prix ? offer.prix : 0,
+
+    });
   }
 
   onDeleteOffers (index?:string) {

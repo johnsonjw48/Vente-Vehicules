@@ -3,6 +3,7 @@ import {Car} from "../interfaces/car";
 import {AngularFireDatabase} from "@angular/fire/compat/database";
 import { BehaviorSubject } from 'rxjs';
 import {AngularFireStorage} from "@angular/fire/compat/storage";
+import {remove} from "@angular/fire/database";
 
 
 @Injectable({
@@ -29,7 +30,6 @@ export class CarsService {
        if (carsSnapshotValue){
          const cars = Object.keys(carsSnapshotValue).map(id => ({id, ...carsSnapshotValue[id]}))
          this.cars = cars
-
        }
         this.dispatchCars()
       })
@@ -52,16 +52,31 @@ export class CarsService {
 
   }
 
-  editCar (car:Car, index:string): Promise<Car>{
-    return  new Promise((resolve, reject)=>{
-      this.db.list('cars').update(index, car)
-        .then(res=>{
-          const editId= this.cars.findIndex(el=> el.id === index)
-          this.cars[editId] = {...car, id: index}
-          this.dispatchCars()
-          resolve({...car, id:index})
-        }).catch(reject)
-    })
+  async editCar (car:Car, index:string, newCarPhoto?:any): Promise<any>{
+
+    try {
+
+      if (newCarPhoto && car.photo && car.photo !== ''){
+          await this.removePhoto(car.photo)
+
+      }
+
+      if (newCarPhoto){
+        const newPhotoUrl = await this.uploadPhoto(newCarPhoto)
+        car.photo = newPhotoUrl
+      }
+
+      await this.db.list('cars').update(index, car)
+
+      const carIndexToUpdate = this.cars.findIndex(el => el.id === index);
+      this.cars[carIndexToUpdate] = {...car, id: index};
+      this.dispatchCars();
+      return {...car, id: index};
+
+    }catch (error){
+      console.log(error)
+    }
+
   }
 
   async deleteCar ( index:string): Promise<Car> {
