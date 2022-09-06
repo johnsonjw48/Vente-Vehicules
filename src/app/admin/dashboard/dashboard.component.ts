@@ -16,6 +16,8 @@ export class DashboardComponent implements OnInit {
   cars:Car[] = []
 
   subscription!:Subscription
+  currentPhotoFile: any
+  currentPhotoUrl!:string
 
   constructor(private fb: FormBuilder,
               private carsService: CarsService) { }
@@ -33,6 +35,8 @@ export class DashboardComponent implements OnInit {
       }
     })
     this.carsService.getCars()
+
+
   }
 
   initOfferForm() {
@@ -41,27 +45,53 @@ export class DashboardComponent implements OnInit {
       titre: ['', [Validators.required, Validators.minLength(5)]],
       marque: ['', Validators.required],
       modele: ['', Validators.required],
+      photo: [],
       prix: [0, Validators.required]
 
     })
   }
 
+  handleChangePhoto ($event:any): void {
+    this.currentPhotoFile = $event.target.files[0]
+    const fileReader =  new FileReader()
+    fileReader.readAsDataURL(this.currentPhotoFile)
+    fileReader.onloadend = (e) =>{
+      this.currentPhotoUrl = <string>e.target?.result
+    }
+  }
+
   onSubmitForm ():void {
     const i = this.offerForm.value.id
+    let offer = this.offerForm.value
+    const offerPhotoUrl = this.cars.find(el => el.id  === i)?.photo
+    offer = {...offer, photo: offerPhotoUrl}
     if (i === null || i === undefined){
-      delete this.offerForm.value.index
-      this.carsService.addCar(this.offerForm.value)
+      delete this.offerForm.value.id
+      this.carsService.addCar(offer, this.currentPhotoFile)
         .catch(console.error)
     }else {
-      delete this.offerForm.value.index
-       this.carsService.editCar(this.offerForm.value, i).catch(console.error)
+      delete this.offerForm.value.id
+       this.carsService.editCar(offer, i, this.currentPhotoFile)
+         .catch(console.error)
     }
 
     this.offerForm.reset()
+    this.currentPhotoFile = null
+    this.currentPhotoUrl = ''
+
   }
 
   onEditOffers(offer:Car):void {
-    this.offerForm.setValue(offer)
+    this.currentPhotoUrl = offer.photo ? offer.photo : '';
+    this.offerForm.setValue({
+      id: offer.id ? offer.id : '',
+      titre: offer.titre ? offer.titre : '',
+      marque: offer.marque ? offer.marque : '',
+      modele: offer.modele ? offer.modele : '',
+      photo: '',
+      prix: offer.prix ? offer.prix : 0,
+
+    });
   }
 
   onDeleteOffers (index?:string) {
